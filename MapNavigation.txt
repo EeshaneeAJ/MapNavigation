@@ -1,0 +1,77 @@
+import java.util.*;
+
+public class DijkstraMapNavigation {
+
+    static class Graph {
+        private int V; // Number of vertices
+        private List<Edge>[] adjList; // Adjacency list for representing the graph
+
+        public Graph(int V) {
+            this.V = V;
+            adjList = new ArrayList[V];
+            for (int i = 0; i < V; i++) {
+                adjList[i] = new ArrayList<>();
+            }
+        }
+
+        public void addEdge(int source, int destination, int weight) {
+            adjList[source].add(new Edge(destination, weight));
+        }
+
+        public int[] dijkstra(int source) {
+            int[] distance = new int[V];
+            Arrays.fill(distance, Integer.MAX_VALUE);
+            distance[source] = 0;
+
+            PriorityQueue<Edge> priorityQueue = new PriorityQueue<>(V, Comparator.comparingInt(e -> e.weight));
+            priorityQueue.add(new Edge(source, 0));
+
+            while (!priorityQueue.isEmpty()) {
+                Edge current = priorityQueue.poll();
+
+                for (Edge neighbor : adjList[current.destination]) {
+                    int newDist = distance[current.destination] + neighbor.weight;
+
+                    if (newDist < distance[neighbor.destination]) {
+                        distance[neighbor.destination] = newDist;
+                        priorityQueue.add(new Edge(neighbor.destination, newDist));
+                    }
+                }
+            }
+
+            return distance;
+        }
+    }
+
+    static class Edge {
+        int destination;
+        int weight;
+
+        public Edge(int destination, int weight) {
+            this.destination = destination;
+            this.weight = weight;
+        }
+    }
+
+    public static void main(String[] args) {
+        int V = 6; // Number of nodes/locations
+        Graph graph = new Graph(V);
+
+        // Adding connections with weights
+        graph.addEdge(0, 1, 2);
+        graph.addEdge(0, 2, 4);
+        graph.addEdge(1, 2, 1);
+        graph.addEdge(1, 3, 7);
+        graph.addEdge(2, 4, 3);
+        graph.addEdge(3, 4, 2);
+        graph.addEdge(4, 5, 1);
+
+        int source = 0; // Starting location
+        int[] shortestDistances = graph.dijkstra(source);
+
+        System.out.println("Shortest distances from location " + source + ":");
+        for (int i = 0; i < V; i++) {
+            System.out.println("Location " + i + ": " + shortestDistances[i]);
+        }
+    }
+}
